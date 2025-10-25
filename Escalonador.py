@@ -17,6 +17,14 @@ class Escalonador:
 
         self.qtd_tarefas = len(self.tarefas)
 
+    def criar_tarefa(self, id, cor, ingresso, duracao, prioridade):
+        tarefa = Tarefa(id, cor, ingresso, duracao, prioridade, [])
+        self.tarefas.append(tarefa)
+        self.qtd_tarefas += 1
+
+    def excluir_tarefa(self, id):
+        self.tarefas = [t for t in self.tarefas if t.id != int(id)]
+
     # Zera variaveis do escalonador
     def setup(self):
         self.tempo = 0
