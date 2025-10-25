@@ -31,6 +31,7 @@ class Escalonador:
         self.tarefas = deepcopy(self.tarefas_originais)
         self.tempo = 0
         self.resetar_quantum()
+        self.processador = None
         self.tarefas_prontas = []
         self.tarefas.sort(key=lambda tarefa: tarefa.id)
 
@@ -39,6 +40,8 @@ class Escalonador:
         tipo_escalonador = self.tipo
         if tipo_escalonador == "FIFO":
             return self.FIFO()
+        elif tipo_escalonador == "SRTF":
+            return self.SRTF()
 
     # Simula FIFO
     def FIFO(self):
@@ -57,6 +60,24 @@ class Escalonador:
         self.quantum_restante -= 1
         self.tempo += 1
         return self.tarefas_prontas[0]
+    
+    def SRTF(self):
+        self.preempcao = self.append_nova_tarefa()
+        if (self.processador):
+            if (self.processador.duracao <= 0):
+                self.preempcao = True
+                self.tarefas_prontas.remove(self.processador)
+
+        if (self.preempcao):
+            self.processador = self.tarefas_prontas[0]
+            for tarefa in self.tarefas_prontas:
+                if (tarefa.duracao < self.processador.duracao) and (tarefa.duracao > 0):
+                    self.processador = tarefa
+                    
+        self.processador.duracao -= 1
+        self.tempo += 1
+
+        return self.processador
                 
     # Verifica se tem novas tarefas criadas
     def append_nova_tarefa(self):

@@ -108,7 +108,7 @@ class UI:
         info = "Escalonador: " + self.escalonador.tipo + "; Quantum: " + str(self.escalonador.quantum) + ";\n"
         for tarefa in tarefas:
             info += "Tarefa " + str(tarefa.id) + "; Cor: " + tarefa.cor + "; Ingresso: " + str(tarefa.ingresso) + "; Duração: " + str(tarefa.duracao) + "; Prioridade: " + str(tarefa.prioridade) + ";\n"
-        self.var_info.set(info) 
+        self.var_info.set(info)
 
     # Cria a janela da simulação, essa função vai ser usada tanto para criar a simulação passo a passo e a completa
     def setup_simulacao(self):
