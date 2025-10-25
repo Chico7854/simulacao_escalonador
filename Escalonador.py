@@ -42,6 +42,8 @@ class Escalonador:
             return self.FIFO()
         elif tipo_escalonador == "SRTF":
             return self.SRTF()
+        elif tipo_escalonador == "Prioridade Preemptivo":
+            return self.prio_preemp()
 
     # Simula FIFO
     def FIFO(self):
@@ -78,6 +80,24 @@ class Escalonador:
         self.tempo += 1
 
         return self.processador
+    
+    def prio_preemp(self):
+        self.preempcao = self.append_nova_tarefa()
+        if (self.processador):
+            if (self.processador.duracao <= 0):
+                self.preempcao = True
+                self.tarefas_prontas.remove(self.processador)
+
+        if (self.preempcao):
+            self.processador = self.tarefas_prontas[0]
+            for tarefa in self.tarefas_prontas:
+                if (tarefa.prioridade > self.processador.prioridade) and (tarefa.duracao > 0):
+                    self.processador = tarefa
+
+        self.processador.duracao -= 1
+        self.tempo += 1
+
+        return self.processador
                 
     # Verifica se tem novas tarefas criadas
     def append_nova_tarefa(self):
@@ -86,7 +106,7 @@ class Escalonador:
             if (tarefa.ingresso == self.tempo):
                 self.tarefas_prontas.append(tarefa)
                 tem_nova_tarefa = True
-        return tem_nova_tarefa
+        return tem_nova_tarefa        
     
     # Verifica se acabou o processamento de todas as tarefas
     def acabou_tarefas(self):

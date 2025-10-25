@@ -168,9 +168,12 @@ class UI:
             self.ax.set_xticks(range(0, tempo_atual + 1))
             self.canvas.draw()
 
+        self.fig.savefig("grafico.pdf")
+
     # Realiza a simulação passo a passo
     def simulacao_passo_a_passo(self):
         if (self.escalonador.acabou_tarefas()):
+            self.fig.savefig("grafico.pdf")
             return
         processador = self.escalonador.prox_tarefa()
         self.atualizar_info_simulacao()
