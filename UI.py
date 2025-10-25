@@ -81,6 +81,7 @@ class UI:
         id_entry_excluir.pack()
         tkinter.Button(frame_excluir_tarefa, text="Excluir Tarefa", bg="red", command=lambda: self.excluir_tarefa(id_entry_excluir.get())).pack(pady=20)
 
+        # Organizar frames
         frame_escalonador.pack(side="left", expand=True, fill="both")
         frame_criar_tarefa.pack(side="left", expand=True, fill="both")
         frame_excluir_tarefa.pack(side="left", expand=True, fill="both")
@@ -98,13 +99,12 @@ class UI:
 
     # Exclui tarefa existente
     def excluir_tarefa(self, id):
-        print("Here")
         self.escalonador.excluir_tarefa(id)
         self.atualizar_info()
 
     # Atualiza as informações no menu principal
     def atualizar_info(self):
-        tarefas = self.escalonador.tarefas
+        tarefas = self.escalonador.tarefas_originais
         info = "Escalonador: " + self.escalonador.tipo + "; Quantum: " + str(self.escalonador.quantum) + ";\n"
         for tarefa in tarefas:
             info += "Tarefa " + str(tarefa.id) + "; Cor: " + tarefa.cor + "; Ingresso: " + str(tarefa.ingresso) + "; Duração: " + str(tarefa.duracao) + "; Prioridade: " + str(tarefa.prioridade) + ";\n"

@@ -1,8 +1,9 @@
 from Tarefa import Tarefa
+from copy import deepcopy
 
 class Escalonador:
     def __init__(self):
-        self.tarefas = []
+        self.tarefas_originais = []
 
         # Leitura do sistema_padrao.txt
         with open("sistema_padrao.txt", "r") as f:
@@ -13,20 +14,21 @@ class Escalonador:
             for linha in f:
                 atributos = linha.split(";")
                 tarefa = Tarefa(atributos[0], atributos[1], atributos[2], atributos[3], atributos[4], atributos[5])
-                self.tarefas.append(tarefa)
+                self.tarefas_originais.append(tarefa)
 
-        self.qtd_tarefas = len(self.tarefas)
+        self.qtd_tarefas = len(self.tarefas_originais)
 
     def criar_tarefa(self, id, cor, ingresso, duracao, prioridade):
         tarefa = Tarefa(id, cor, ingresso, duracao, prioridade, [])
-        self.tarefas.append(tarefa)
+        self.tarefas_originais.append(tarefa)
         self.qtd_tarefas += 1
 
     def excluir_tarefa(self, id):
-        self.tarefas = [t for t in self.tarefas if t.id != int(id)]
+        self.tarefas_originais = [t for t in self.tarefas_originais if t.id != int(id)]
 
     # Zera variaveis do escalonador
     def setup(self):
+        self.tarefas = deepcopy(self.tarefas_originais)
         self.tempo = 0
         self.resetar_quantum()
         self.tarefas_prontas = []
