@@ -1,0 +1,70 @@
+from Tarefa import Tarefa
+
+class Escalonador:
+    def __init__(self):
+        self.tarefas = []
+
+        # Leitura do sistema_padrao.txt
+        with open("sistema_padrao.txt", "r") as f:
+            cabecalho = f.readline().split(";")
+            self.tipo = cabecalho[0]
+            self.quantum = int(cabecalho[1])
+        
+            for linha in f:
+                atributos = linha.split(";")
+                tarefa = Tarefa(atributos[0], atributos[1], atributos[2], atributos[3], atributos[4], atributos[5])
+                self.tarefas.append(tarefa)
+
+        self.qtd_tarefas = len(self.tarefas)
+
+    # Zera variaveis do escalonador
+    def setup(self):
+        self.tempo = 0
+        self.resetar_quantum()
+        self.tarefas_prontas = []
+        self.tarefas.sort(key=lambda tarefa: tarefa.id)
+
+    # Simula sistema operacional
+    def prox_tarefa(self):
+        tipo_escalonador = self.tipo
+        if tipo_escalonador == "FIFO":
+            return self.FIFO()
+
+    # Simula FIFO
+    def FIFO(self):
+        self.preempcao = self.append_nova_tarefa()
+        if (self.quantum_restante <= 0):
+            self.preempcao = True
+
+        if (self.preempcao):
+            self.resetar_quantum()
+            tarefa_trocada = self.tarefas_prontas.pop(0)
+            if (tarefa_trocada.duracao > 0):
+                self.tarefas_prontas.append(tarefa_trocada)
+        processador = self.tarefas_prontas[0]
+        processador.duracao -= 1
+
+        self.quantum_restante -= 1
+        self.tempo += 1
+        return self.tarefas_prontas[0]
+                
+    # Verifica se tem novas tarefas criadas
+    def append_nova_tarefa(self):
+        tem_nova_tarefa = False
+        for tarefa in self.tarefas:
+            if (tarefa.ingresso == self.tempo):
+                self.tarefas_prontas.append(tarefa)
+                tem_nova_tarefa = True
+        return tem_nova_tarefa
+    
+    # Verifica se acabou o processamento de todas as tarefas
+    def acabou_tarefas(self):
+        for tarefa in self.tarefas:
+            if tarefa.duracao > 0:
+                return False
+            
+        return True
+    
+    # Reseta o valor do quantum para o original
+    def resetar_quantum(self):
+        self.quantum_restante = self.quantum
