@@ -1,3 +1,4 @@
+import os
 from Tarefa import Tarefa
 from copy import deepcopy
 
@@ -6,7 +7,7 @@ class Escalonador:
         self.tarefas_originais = []
 
         # Leitura do sistema_padrao.txt
-        with open("sistema_padrao.txt", "r") as f:
+        with open("sistema_padrao.txt") as f:
             cabecalho = f.readline().split(";")
             self.tipo = cabecalho[0]
             self.quantum = int(cabecalho[1])

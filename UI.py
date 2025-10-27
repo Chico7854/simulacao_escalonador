@@ -1,8 +1,8 @@
+import os
 import tkinter
 from tkinter import ttk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from Tarefa import Tarefa
 
 class UI:
     def __init__(self, escalonador):
@@ -168,7 +168,7 @@ class UI:
             self.ax.set_xticks(range(0, tempo_atual + 1))
             self.canvas.draw()
 
-        self.fig.savefig("grafico.pdf")
+            self.fig.savefig("../grafico.pdf")
 
     # Realiza a simulação passo a passo
     def simulacao_passo_a_passo(self):
