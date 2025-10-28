@@ -1,10 +1,9 @@
-import os
 from Tarefa import Tarefa
 from copy import deepcopy
 
 class Escalonador:
     def __init__(self):
-        self.tarefas_originais = []
+        self.tcb = []
 
         # Leitura do sistema_padrao.txt
         with open("sistema_padrao.txt") as f:
@@ -15,28 +14,30 @@ class Escalonador:
             for linha in f:
                 atributos = linha.split(";")
                 tarefa = Tarefa(atributos[0], atributos[1], atributos[2], atributos[3], atributos[4], atributos[5])
-                self.tarefas_originais.append(tarefa)
+                self.tcb.append(tarefa)
 
-        self.qtd_tarefas = len(self.tarefas_originais)
+        self.qtd_tarefas = len(self.tcb)
 
+    # Cria nova tarefa e adiciona a tcb
     def criar_tarefa(self, id, cor, ingresso, duracao, prioridade):
         tarefa = Tarefa(id, cor, ingresso, duracao, prioridade, [])
-        self.tarefas_originais.append(tarefa)
+        self.tcb.append(tarefa)
         self.qtd_tarefas += 1
 
+    # Exclui tarefa da tcb
     def excluir_tarefa(self, id):
-        self.tarefas_originais = [t for t in self.tarefas_originais if t.id != int(id)]
+        self.tcb = [t for t in self.tcb if t.id != int(id)]
 
     # Zera variaveis do escalonador
     def setup(self):
-        self.tarefas = deepcopy(self.tarefas_originais)
+        self.tarefas = deepcopy(self.tcb)
         self.tempo = 0
         self.resetar_quantum()
         self.processador = None
         self.tarefas_prontas = []
         self.tarefas.sort(key=lambda tarefa: tarefa.id)
 
-    # Simula sistema operacional
+    # Ativa esaclonador escolhido
     def prox_tarefa(self):
         tipo_escalonador = self.tipo
         if tipo_escalonador == "FIFO":
@@ -64,6 +65,7 @@ class Escalonador:
         self.tempo += 1
         return self.tarefas_prontas[0]
     
+    # Simula SRTF
     def SRTF(self):
         self.preempcao = self.append_nova_tarefa()
         if (self.processador):
@@ -82,6 +84,7 @@ class Escalonador:
 
         return self.processador
     
+    # Simula Prio Preemp
     def prio_preemp(self):
         self.preempcao = self.append_nova_tarefa()
         if (self.processador):

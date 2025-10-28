@@ -15,7 +15,7 @@ class UI:
     # Cria menu principal
     def setup(self):
         self.root.title("Simulação Escalonador")
-        self.root.geometry("1366x768")
+        self.root.geometry("1920x1080")
 
         # Criar label de informação do escalonador e tarefas
         self.info_label = tkinter.Label(self.root, textvariable=self.var_info, justify="left")
@@ -37,7 +37,7 @@ class UI:
     # Cria janela para editar informações do sistema
     def editar_info(self):
         root_tarefa = tkinter.Toplevel(self.root)
-        root_tarefa.geometry("1366x768")
+        root_tarefa.geometry("1920x1080")
 
         # Informações escalonador
         frame_escalonador = tkinter.Frame(root_tarefa)
@@ -104,7 +104,7 @@ class UI:
 
     # Atualiza as informações no menu principal
     def atualizar_info(self):
-        tarefas = self.escalonador.tarefas_originais
+        tarefas = self.escalonador.tcb
         info = "Escalonador: " + self.escalonador.tipo + "; Quantum: " + str(self.escalonador.quantum) + ";\n"
         for tarefa in tarefas:
             info += "Tarefa " + str(tarefa.id) + "; Cor: " + tarefa.cor + "; Ingresso: " + str(tarefa.ingresso) + "; Duração: " + str(tarefa.duracao) + "; Prioridade: " + str(tarefa.prioridade) + ";\n"
@@ -115,7 +115,7 @@ class UI:
         self.escalonador.setup()
 
         self.root_simulacao = tkinter.Toplevel(self.root)
-        self.root_simulacao.geometry("1366x768")
+        self.root_simulacao.geometry("1920x1080")
         self.fig = Figure(figsize=(13, 7))
         self.ax = self.fig.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root_simulacao)
@@ -168,7 +168,7 @@ class UI:
             self.ax.set_xticks(range(0, tempo_atual + 1))
             self.canvas.draw()
 
-            self.fig.savefig("../grafico.pdf")
+            self.fig.savefig("grafico.pdf")
 
     # Realiza a simulação passo a passo
     def simulacao_passo_a_passo(self):
