@@ -68,18 +68,20 @@ class UI:
         prioridade_entry = tkinter.Entry(frame_criar_tarefa)
         prioridade_entry.pack()
         tkinter.Label(frame_criar_tarefa, text="Cor").pack()
-        cor_entry = tkinter.Entry(frame_criar_tarefa)
-        cor_entry.pack()
-        tkinter.Button(frame_criar_tarefa, bg="red", text="Criar Tarefa", command=lambda: self.criar_tarefa(id_entry_criar.get(), cor_entry.get(), ingresso_entry.get(),
+        opcoes_cor = ["blue", "orange", "green", "red", "purple", "brown", "pink", "gray", "olive", "cyan"]
+        cor_combobox = ttk.Combobox(frame_criar_tarefa, values=opcoes_cor)
+        cor_combobox.pack()
+        tkinter.Button(frame_criar_tarefa, bg="red", text="Criar Tarefa", command=lambda: self.criar_tarefa(id_entry_criar.get(), cor_combobox.get(), ingresso_entry.get(),
                                                                                                             duracao_entry.get(), prioridade_entry.get())).pack(pady=20)
 
         # Excluir tarefa
         frame_excluir_tarefa = tkinter.Frame(root_tarefa)
         tkinter.Label(frame_excluir_tarefa, text="Excluir Tarefa", fg="red", font=("bold")).pack()
         tkinter.Label(frame_excluir_tarefa, text="Id").pack()
-        id_entry_excluir = tkinter.Entry(frame_excluir_tarefa)
-        id_entry_excluir.pack()
-        tkinter.Button(frame_excluir_tarefa, text="Excluir Tarefa", bg="red", command=lambda: self.excluir_tarefa(id_entry_excluir.get())).pack(pady=20)
+        ids_tarefas = [t.id for t in self.escalonador.tcb]
+        id_excluir_combobox = ttk.Combobox(frame_excluir_tarefa, values=ids_tarefas)
+        id_excluir_combobox.pack()
+        tkinter.Button(frame_excluir_tarefa, text="Excluir Tarefa", bg="red", command=lambda: self.excluir_tarefa(id_excluir_combobox.get())).pack(pady=20)
 
         # Organizar frames
         frame_escalonador.pack(side="left", expand=True, fill="both")
@@ -121,8 +123,8 @@ class UI:
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root_simulacao)
         self.ax.set_xlabel("Tempo")
         self.ax.set_ylabel("Tarefas")
-        self.ax.set_ylim(0.5, self.escalonador.qtd_tarefas + 0.5)
-        self.ax.set_yticks(range(1, self.escalonador.qtd_tarefas + 1))
+        self.ax.set_ylim(0.5, self.escalonador.tcb[-1].id + 0.5)
+        self.ax.set_yticks(range(1, self.escalonador.tcb[-1].id + 1))
 
     # Cria janela especifica para simulacao passo a passo
     def setup_simulacao_passo_a_passo(self):
@@ -154,39 +156,43 @@ class UI:
             processador = self.escalonador.prox_tarefa()
             tempo_atual = self.escalonador.tempo
             tarefas_em_espera = list(self.escalonador.tarefas_prontas)
-            tarefas_em_espera.remove(processador)
+            if processador:
+                tarefas_em_espera.remove(processador)
 
             # Desenha tarefas em espera
             for tarefa in tarefas_em_espera:
                 self.ax.broken_barh([(tempo_atual - 1, 1)], (tarefa.id * 1 - 0.3, 0.6), facecolors="white", edgecolors="black")
 
             # Desenha tarefa no processador
-            self.ax.broken_barh([(tempo_atual - 1, 1)], (processador.id * 1 - 0.3, 0.6), facecolors=processador.cor, edgecolors="black")   
+            if processador:
+                self.ax.broken_barh([(tempo_atual - 1, 1)], (processador.id * 1 - 0.3, 0.6), facecolors=processador.cor, edgecolors="black")   
 
             # Ajusta o gráfico
             self.ax.set_xlim(0, tempo_atual)
             self.ax.set_xticks(range(0, tempo_atual + 1))
             self.canvas.draw()
 
-            self.fig.savefig("grafico.pdf")
+            self.fig.savefig("grafico.png")
 
     # Realiza a simulação passo a passo
     def simulacao_passo_a_passo(self):
         if (self.escalonador.acabou_tarefas()):
-            self.fig.savefig("grafico.pdf")
+            self.fig.savefig("grafico.png")
             return
         processador = self.escalonador.prox_tarefa()
         self.atualizar_info_simulacao()
         tempo_atual = self.escalonador.tempo
         tarefas_em_espera = list(self.escalonador.tarefas_prontas)
-        tarefas_em_espera.remove(processador)
+        if (processador):
+            tarefas_em_espera.remove(processador)
 
         # Desenha tarefas em espera
         for tarefa in tarefas_em_espera:
             self.ax.broken_barh([(tempo_atual - 1, 1)], (tarefa.id * 1 - 0.3, 0.6), facecolors="white", edgecolors="black")
 
         # Desenha tarefa no processador
-        self.ax.broken_barh([(tempo_atual - 1, 1)], (processador.id * 1 - 0.3, 0.6), facecolors=processador.cor, edgecolors="black")   
+        if (processador):
+            self.ax.broken_barh([(tempo_atual - 1, 1)], (processador.id * 1 - 0.3, 0.6), facecolors=processador.cor, edgecolors="black")   
 
         # Ajusta o gráfico
         self.ax.set_xlim(0, tempo_atual)

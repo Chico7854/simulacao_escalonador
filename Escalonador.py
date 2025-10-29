@@ -27,6 +27,7 @@ class Escalonador:
     # Exclui tarefa da tcb
     def excluir_tarefa(self, id):
         self.tcb = [t for t in self.tcb if t.id != int(id)]
+        self.qtd_tarefas -= 1
 
     # Zera variaveis do escalonador
     def setup(self):
@@ -50,7 +51,12 @@ class Escalonador:
     # Simula FIFO
     def FIFO(self):
         self.preempcao = self.append_nova_tarefa()
+        self.tempo += 1
+        if len(self.tarefas_prontas) == 0:
+            return None
         if (self.quantum_restante <= 0):
+            self.preempcao = True
+        elif (self.tarefas_prontas[0].duracao == 0):
             self.preempcao = True
 
         if (self.preempcao):
@@ -58,20 +64,32 @@ class Escalonador:
             tarefa_trocada = self.tarefas_prontas.pop(0)
             if (tarefa_trocada.duracao > 0):
                 self.tarefas_prontas.append(tarefa_trocada)
-        processador = self.tarefas_prontas[0]
-        processador.duracao -= 1
 
         self.quantum_restante -= 1
-        self.tempo += 1
-        return self.tarefas_prontas[0]
+
+        if len(self.tarefas_prontas) > 0:
+            processador = self.tarefas_prontas[0]
+            processador.duracao -= 1
+            return processador
+        else:
+            return None
     
     # Simula SRTF
     def SRTF(self):
         self.preempcao = self.append_nova_tarefa()
+        self.tempo += 1
+
         if (self.processador):
             if (self.processador.duracao <= 0):
                 self.preempcao = True
                 self.tarefas_prontas.remove(self.processador)
+                self.processador = None
+
+        if len(self.tarefas_prontas) == 0:
+            return None
+
+        if (self.quantum_restante <= 0):
+            self.preempcao = True
 
         if (self.preempcao):
             self.processador = self.tarefas_prontas[0]
@@ -80,17 +98,21 @@ class Escalonador:
                     self.processador = tarefa
                     
         self.processador.duracao -= 1
-        self.tempo += 1
 
         return self.processador
     
     # Simula Prio Preemp
     def prio_preemp(self):
         self.preempcao = self.append_nova_tarefa()
+        self.tempo += 1
         if (self.processador):
             if (self.processador.duracao <= 0):
                 self.preempcao = True
                 self.tarefas_prontas.remove(self.processador)
+                self.processador = None
+
+        if len(self.tarefas_prontas) == 0:
+            return None
 
         if (self.preempcao):
             self.processador = self.tarefas_prontas[0]
@@ -99,7 +121,6 @@ class Escalonador:
                     self.processador = tarefa
 
         self.processador.duracao -= 1
-        self.tempo += 1
 
         return self.processador
                 

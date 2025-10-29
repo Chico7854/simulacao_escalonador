@@ -1,4 +1,6 @@
-Prioridade Preemptivo;2
-1;blue;0;10;3;[]
-2;red;2;7;6;[]
-3;green;3;8;9;[]
+FIFO;2
+1;blue;1;5;2;[]
+2;olive;10;2;3;[]
+3;purple;10;4;1;[]
+4;green;30;1;4;[]
+5;red;50;2;5;[]
