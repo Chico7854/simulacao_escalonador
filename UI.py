@@ -1,4 +1,3 @@
-import os
 import tkinter
 from tkinter import ttk
 from matplotlib.figure import Figure
