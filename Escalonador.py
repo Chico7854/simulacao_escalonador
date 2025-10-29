@@ -22,6 +22,7 @@ class Escalonador:
     def criar_tarefa(self, id, cor, ingresso, duracao, prioridade):
         tarefa = Tarefa(id, cor, ingresso, duracao, prioridade, [])
         self.tcb.append(tarefa)
+        self.ordenar_tarefas()
         self.qtd_tarefas += 1
 
     # Exclui tarefa da tcb
@@ -50,74 +51,78 @@ class Escalonador:
 
     # Simula FIFO
     def FIFO(self):
-        self.preempcao = self.append_nova_tarefa()
+        self.preempcao = self.append_nova_tarefa()  # Verifica se entrou nova tarefa para preemptar
         self.tempo += 1
-        if len(self.tarefas_prontas) == 0:
+        if len(self.tarefas_prontas) == 0:      # Se não houver tarefas prontas pula
             return None
-        if (self.quantum_restante <= 0):
+        if (self.quantum_restante <= 0):    # Verifica de o quantum acabou para preemptar
             self.preempcao = True
-        elif (self.tarefas_prontas[0].duracao == 0):
+        elif (self.tarefas_prontas[0].duracao == 0):    # Verifica se a tarefa no processador terminou para preemptar
             self.preempcao = True
 
-        if (self.preempcao):
-            self.resetar_quantum()
-            tarefa_trocada = self.tarefas_prontas.pop(0)
+        # Em caso de preempção
+        if (self.preempcao):    
+            self.resetar_quantum()      # Reseta o valor do quantum
+            tarefa_trocada = self.tarefas_prontas.pop(0)    # Tira do começo da fila a tarefa
             if (tarefa_trocada.duracao > 0):
-                self.tarefas_prontas.append(tarefa_trocada)
+                self.tarefas_prontas.append(tarefa_trocada)     # Se a tarefa ainda não terminou, adiciona para o final da fila
 
         self.quantum_restante -= 1
 
-        if len(self.tarefas_prontas) > 0:
+        if len(self.tarefas_prontas) > 0:   
             processador = self.tarefas_prontas[0]
-            processador.duracao -= 1
-            return processador
+            processador.duracao -= 1    # Diminui a duracao da tarefa
+            return processador      # Retorna a tarefa que ocupou o processador
         else:
-            return None
+            return None     # Caso acabou a tarefa e nao há nenhuma tarefa na lista de prontas
     
     # Simula SRTF
     def SRTF(self):
-        self.preempcao = self.append_nova_tarefa()
+        self.preempcao = self.append_nova_tarefa()      # Verifica se entrou nova tarefa para preemptar
         self.tempo += 1
 
         if (self.processador):
-            if (self.processador.duracao <= 0):
+            if (self.processador.duracao <= 0):     # Verifica se acabou a tarefa para preemptar
                 self.preempcao = True
-                self.tarefas_prontas.remove(self.processador)
-                self.processador = None
+                self.tarefas_prontas.remove(self.processador)   # Remove da lista de prontas
+                self.processador = None     # Limpa a variavel que guarda o processador
 
-        if len(self.tarefas_prontas) == 0:
+        if len(self.tarefas_prontas) == 0:      # Verifica se há tarefas prontas
             return None
 
-        if (self.quantum_restante <= 0):
+        if (self.quantum_restante <= 0):       # Verifica se acabou o quantum para preemptar
             self.preempcao = True
 
-        if (self.preempcao):
+        # Caso tenha preempção
+        if (self.preempcao):       
             self.processador = self.tarefas_prontas[0]
-            for tarefa in self.tarefas_prontas:
-                if (tarefa.duracao < self.processador.duracao) and (tarefa.duracao > 0):
+            for tarefa in self.tarefas_prontas:                 # Verifica entre as tarefas prontas qual tarefa possui a menor duracao restante
+                if (tarefa.duracao < self.processador.duracao):
                     self.processador = tarefa
                     
-        self.processador.duracao -= 1
+        self.processador.duracao -= 1   
 
         return self.processador
     
     # Simula Prio Preemp
     def prio_preemp(self):
-        self.preempcao = self.append_nova_tarefa()
+        self.preempcao = self.append_nova_tarefa()  # Verifica se há nova tarefa para preemptar
         self.tempo += 1
-        if (self.processador):
-            if (self.processador.duracao <= 0):
-                self.preempcao = True
-                self.tarefas_prontas.remove(self.processador)
-                self.processador = None
 
-        if len(self.tarefas_prontas) == 0:
+        if (self.processador):
+            if (self.processador.duracao <= 0):                 # Verifica se a tarefa que estava no processador acabou para preemptar
+                self.preempcao = True                           # Caso acabou preempta
+                self.tarefas_prontas.remove(self.processador)   # Remove da lista de tarefas prontas
+                self.processador = None                         # Limpa o processador
+
+        if len(self.tarefas_prontas) == 0:                      # Verifica se hátarefas na lista de prontas
             return None
 
+        # Caso há preempção
         if (self.preempcao):
             self.processador = self.tarefas_prontas[0]
-            for tarefa in self.tarefas_prontas:
-                if (tarefa.prioridade > self.processador.prioridade) and (tarefa.duracao > 0):
+            for tarefa in self.tarefas_prontas:                 # Verifica qual tarefa tem maior prioridade na lista de prontas
+                if (tarefa.prioridade > self.processador.prioridade):
                     self.processador = tarefa
 
         self.processador.duracao -= 1
@@ -144,3 +149,7 @@ class Escalonador:
     # Reseta o valor do quantum para o original
     def resetar_quantum(self):
         self.quantum_restante = self.quantum
+
+    # Ordena as tarefas por id
+    def ordenar_tarefas(self):
+        self.tcb.sort(key=lambda t: t.id)
