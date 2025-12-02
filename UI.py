@@ -42,7 +42,7 @@ class UI:
         frame_escalonador = tkinter.Frame(root_tarefa)
         tkinter.Label(frame_escalonador, text="Editar Escalonador", fg="red", font=("bold")).pack()
         tkinter.Label(frame_escalonador, text="Tipo Escalonador").pack()
-        opcoes_escalonador = ["FIFO", "SRTF", "Prioridade Preemptivo"]
+        opcoes_escalonador = ["FIFO", "SRTF", "Prioridade Preemptivo", "Prioridade Preemptivo Envelhecimento"]
         tipo_escalonador_combobox = ttk.Combobox(frame_escalonador, values=opcoes_escalonador)
         tipo_escalonador_combobox.pack()
         tkinter.Label(frame_escalonador, text="Quantum").pack()
@@ -108,7 +108,8 @@ class UI:
         tarefas = self.escalonador.tcb
         info = "Escalonador: " + self.escalonador.tipo + "; Quantum: " + str(self.escalonador.quantum) + ";\n"
         for tarefa in tarefas:
-            info += "Tarefa " + str(tarefa.id) + "; Cor: " + tarefa.cor + "; Ingresso: " + str(tarefa.ingresso) + "; Duração: " + str(tarefa.duracao) + "; Prioridade: " + str(tarefa.prioridade) + ";\n"
+            info += "Tarefa " + str(tarefa.id) + "; Cor: " + tarefa.cor + "; Ingresso: " + str(tarefa.ingresso) + "; Duração: " + str(tarefa.duracao) + \
+                "; Prioridade: " + str(tarefa.prioridade) + "; Eventos: " + tarefa.string_lista_eventos + ";\n"
         self.var_info.set(info)
 
     # Cria a janela da simulação, essa função vai ser usada tanto para criar a simulação passo a passo e a completa
@@ -202,7 +203,11 @@ class UI:
     def atualizar_info_simulacao(self):
         string_tarefas = ""
         for tarefa in self.escalonador.tarefas:
-            string_tarefas += f"Tarefa {tarefa.id}; Ingresso: {tarefa.ingresso}; Duração Restante: {tarefa.duracao}; Prioridade: {tarefa.prioridade}\n"
+            string_tarefas += f"Tarefa {tarefa.id}; Ingresso: {tarefa.ingresso}; Duração Restante: {tarefa.duracao}; Prioridade: {tarefa.prioridade}"
+            if (self.escalonador.tipo == "Prioridade Preemptivo Envelhecimento"):
+                string_tarefas += f"; Prioridade Dinâmica: {tarefa.prioridade_dinamica}\n"
+            else:
+                string_tarefas += "\n"
 
         self.var_info_simulacao.set(
             f"Relógio: {self.escalonador.tempo}\n" +

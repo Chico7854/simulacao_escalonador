@@ -1,4 +1,5 @@
 from Tarefa import Tarefa
+from Mutex import Mutex
 from copy import deepcopy
 
 class Escalonador:
@@ -10,10 +11,13 @@ class Escalonador:
             cabecalho = f.readline().split(";")
             self.tipo = cabecalho[0]
             self.quantum = int(cabecalho[1])
+            self.alpha = int(cabecalho[2])
         
             for linha in f:
-                atributos = linha.split(";")
-                tarefa = Tarefa(atributos[0], atributos[1], atributos[2], atributos[3], atributos[4], atributos[5])
+                atributos = linha.strip().split(";")
+                if atributos[5] == '':
+                    atributos.pop()
+                tarefa = Tarefa(atributos[0], atributos[1], atributos[2], atributos[3], atributos[4], atributos[5:])
                 self.tcb.append(tarefa)
 
         self.qtd_tarefas = len(self.tcb)
@@ -48,6 +52,8 @@ class Escalonador:
             return self.SRTF()
         elif tipo_escalonador == "Prioridade Preemptivo":
             return self.prio_preemp()
+        elif tipo_escalonador == "Prioridade Preemptivo Envelhecimento":
+            return self.prio_preemp_envelhecimento();
 
     # Simula FIFO
     def FIFO(self):
@@ -115,7 +121,7 @@ class Escalonador:
                 self.tarefas_prontas.remove(self.processador)   # Remove da lista de tarefas prontas
                 self.processador = None                         # Limpa o processador
 
-        if len(self.tarefas_prontas) == 0:                      # Verifica se hátarefas na lista de prontas
+        if len(self.tarefas_prontas) == 0:                      # Verifica se há tarefas na lista de prontas
             return None
 
         # Caso há preempção
@@ -128,7 +134,42 @@ class Escalonador:
         self.processador.duracao -= 1
 
         return self.processador
-                
+    
+    def prio_preemp_envelhecimento(self):
+        self.preempcao = self.append_nova_tarefa()  # Verifica se há nova tarefa para preemptar
+        self.tempo += 1
+
+        if self.quantum_restante <= 0:
+            self.preempcao = True
+
+        if (self.processador):
+            if (self.processador.duracao <= 0):                 # Verifica se a tarefa que estava no processador acabou para preemptar
+                self.preempcao = True                           # Caso acabou preempta
+                self.tarefas_prontas.remove(self.processador)   # Remove da lista de tarefas prontas
+                self.processador = None                         # Limpa o processador
+
+        if len(self.tarefas_prontas) == 0:                      # Verifica se há tarefas na lista de prontas
+            return None
+
+        # Caso há preempção
+        if (self.preempcao):
+            self.quantum_restante = self.quantum
+            temp = self.tarefas_prontas[0]
+            for tarefa in self.tarefas_prontas:                 # Verifica qual tarefa tem maior prioridade na lista de prontas
+                if (tarefa.prioridade_dinamica > temp.prioridade_dinamica):
+                    temp = tarefa
+            for tarefa in self.tarefas_prontas:
+                if tarefa == temp:
+                    tarefa.prioridade_dinamica = tarefa.prioridade
+                    self.processador = tarefa
+                else:
+                    tarefa.prioridade_dinamica += self.alpha
+
+        self.processador.duracao -= 1
+        self.quantum_restante -= 1
+
+        return self.processador
+    
     # Verifica se tem novas tarefas criadas
     def append_nova_tarefa(self):
         tem_nova_tarefa = False
