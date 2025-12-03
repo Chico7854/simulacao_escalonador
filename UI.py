@@ -202,9 +202,36 @@ class UI:
     # Atualiza o quadro de informações da simulação passo a passo em tempo real
     def atualizar_info_simulacao(self):
         string_tarefas = ""
+        prioridade_dinamica = ""
         for tarefa in self.escalonador.tarefas:
+            if self.escalonador.houve_heranca_prioridade:
+                if tarefa == self.escalonador.processador:
+                    prioridade_dinamica = self.escalonador.tarefa_trocada.prioridade_dinamica
+                elif tarefa == self.escalonador.tarefa_trocada:
+                    prioridade_dinamica = self.escalonador.processador.prioridade_dinamica
+                else:
+                    prioridade_dinamica = tarefa.prioridade_dinamica
+            else:
+                prioridade_dinamica = tarefa.prioridade_dinamica
+
             string_tarefas += f"Tarefa {tarefa.id}; Ingresso: {tarefa.ingresso}; Duração Restante: {tarefa.duracao}; Prioridade: {tarefa.prioridade}" \
-                + f"; Prioridade Dinâmica: {tarefa.prioridade_dinamica}\n"
+                + f"; Prioridade Dinâmica: {prioridade_dinamica}\n"
+            
+        # Informação dos Mutexes
+        if len(self.escalonador.lista_mutex) == 0:
+            string_tarefas += "Nenhum Mutex Criado\n"
+        for mutex in self.escalonador.lista_mutex:
+            string_tarefas += f"Mutex: {mutex.id}; "
+            if mutex.isLocked:
+                string_tarefas += f"Ocupado por Tarefa {mutex.tarefa.id}\n"
+            else:
+                string_tarefas += f"Livre\n"
+
+        # Informações dos IO
+        if self.escalonador.fazendo_IO:
+            string_tarefas += f"Atividade {self.escalonador.processador.id} fazendo I/O\n"
+        else:
+            string_tarefas += "Não há nenhuma operação I/O no momento\n"
 
         self.var_info_simulacao.set(
             f"Relógio: {self.escalonador.tempo}\n" +

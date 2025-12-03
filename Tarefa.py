@@ -34,7 +34,6 @@ class Tarefa:
 
     # Operação de Lock do Mutex, retorna None se funcionou, e o mutex se ele bloqueou
     def lock(self, evento, lista_mutex):
-        print("locking")
         mutex = None
         id_mutex = evento.id_mutex
         success = True
@@ -43,7 +42,6 @@ class Tarefa:
                 mutex = mu
 
         if (not mutex):                                                             # Cria um novo mutex caso não exista
-            print("Criando Mutex")
             mutex = Mutex(id_mutex)
             lista_mutex.append(mutex)
     
@@ -58,11 +56,6 @@ class Tarefa:
             return None
         else:
             return mutex
-
-
-    def tratar_heranca_prioridade(self, mutex):
-        self.inverter_prioridades(mutex.tarefa)
-        return mutex.tarefa
     
     
     def unlock(self, mutex):
@@ -105,3 +98,6 @@ class Tarefa:
         temp = tarefa.prioridade_dinamica
         tarefa.prioridade_dinamica = self.prioridade_dinamica
         self.prioridade_dinamica = temp
+
+    def resetar_prioridade(self):
+        self.prioridade_dinamica = self.prioridade
