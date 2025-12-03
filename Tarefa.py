@@ -66,50 +66,22 @@ class Tarefa:
         self.herancaPrioridade = True
         mutex.tarefa.herancaPrioridade = True
         return mutex.tarefa
-
-
-    # def lock(self, evento, lista_mutex):
-    #     mutex = None
-    #     id_mutex = evento.id_mutex
-    #     for mu in lista_mutex:
-    #         if id_mutex == mu.id:
-    #             mutex = mu
-
-    #     if (not mutex):                                                             # Cria um novo mutex caso não exista
-    #         mutex = Mutex(id_mutex)
-    #         lista_mutex.append(mutex)
     
-    #     if (not mutex.isLocked):
-    #         mutex.isLocked = True
-    #         mutex.tarefa = self
-    #     else:
-    #         if (mutex.tarefa != self):
-    #             if (mutex.tarefa.prioridade_dinamica < self.prioridade_dinamica):       # Herança de Prioridades
-    #                 temp = mutex.tarefa.prioridade_dinamica
-    #                 mutex.tarefa.prioridade_dinamica = self.prioridade_dinamica
-    #                 self.prioridade_dinamica = temp
-    #                 self.herancaPrioridade = True
-    #                 mutex.tarefa.herancaPrioridade = True
-            
-    #     if self.herancaPrioridade:
-    #         return mutex.tarefa
-    #     else:
-    #         return self
     
     def unlock(self, mutex):
         mutex.tarefa = None
         mutex.isLocked = False
 
     # Verifica se tem algum mutex para tratar, retorna true se tarefa conseguiu processar no mutex ou se não houver mutex, false se foi bloqueada
-    def verificar_mutex(self, tempo_atual, lista_mutex):
+    def verificar_mutex(self, lista_mutex):
         for evento in self.lista_eventos_mutex:
             if evento.inicio <= self.tempo_decorrido:
                 return self.lock(evento, lista_mutex)
         return None
     
-    def decrementar_duracao_evento_mutex(self, tempo_atual, lista_mutex):
+    def decrementar_duracao_evento_mutex(self, lista_mutex):
         for evento in self.lista_eventos_mutex:
-            if evento.inicio < tempo_atual:
+            if evento.inicio <= self.tempo_decorrido:
                 evento.duracao -= 1
             if evento.duracao <= 0:
                 self.lista_eventos_mutex.remove(evento)
@@ -132,6 +104,7 @@ class Tarefa:
                 return True
         return False
     
-    def decrementar_duracao(self):
+    def decrementar_duracao(self, lista_mutex):
         self.duracao -= 1
         self.tempo_decorrido += 1
+        self.decrementar_duracao_evento_mutex(lista_mutex)

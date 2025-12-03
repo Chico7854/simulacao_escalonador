@@ -79,15 +79,19 @@ class Escalonador:
         # Em caso de preempção
         if (self.preempcao):    
             self.resetar_quantum()      # Reseta o valor do quantum
-            tarefa_trocada = self.tarefas_prontas.pop(0)    # Tira do começo da fila a tarefa
-            if (tarefa_trocada.duracao > 0):
-                self.tarefas_prontas.append(tarefa_trocada)     # Se a tarefa ainda não terminou, adiciona para o final da fila
+            bloqueado_mutex = True
+            while bloqueado_mutex:
+                tarefa_trocada = self.tarefas_prontas.pop(0)    # Tira do começo da fila a tarefa
+                if (tarefa_trocada.duracao > 0):
+                    self.tarefas_prontas.append(tarefa_trocada)     # Se a tarefa ainda não terminou, adiciona para o final da fila
+                if len(self.tarefas_prontas) > 0:
+                    bloqueado_mutex = self.tarefas_prontas[0].verificar_mutex(self.lista_mutex)
 
         self.quantum_restante -= 1
 
-        if len(self.tarefas_prontas) > 0:   
+        if len(self.tarefas_prontas) > 0:
             processador = self.tarefas_prontas[0]
-            processador.decrementar_duracao()    # Diminui a duracao da tarefa
+            processador.decrementar_duracao(self.lista_mutex)    # Diminui a duracao da tarefa
             return processador      # Retorna a tarefa que ocupou o processador
         else:
             return None     # Caso acabou a tarefa e nao há nenhuma tarefa na lista de prontas
@@ -115,15 +119,23 @@ class Escalonador:
 
         if (self.quantum_restante <= 0):       # Verifica se acabou o quantum para preemptar
             self.preempcao = True
+            self.resetar_quantum()
 
         # Caso tenha preempção
-        if (self.preempcao):       
+        if (self.preempcao): 
+            self.resetar_quantum()      
             self.processador = self.tarefas_prontas[0]
             for tarefa in self.tarefas_prontas:                 # Verifica entre as tarefas prontas qual tarefa possui a menor duracao restante
                 if (tarefa.duracao < self.processador.duracao):
                     self.processador = tarefa
                     
-        self.processador.decrementar_duracao()   
+        mutex = self.processador.verificar_mutex(self.lista_mutex)
+        # Herança de "prioridades" SRTF
+        if mutex:
+            self.processador = mutex.tarefa
+        self.processador.decrementar_duracao(self.lista_mutex)
+
+        self.quantum_restante -= 1
 
         return self.processador
     
@@ -136,11 +148,14 @@ class Escalonador:
             self.prox_preempcao = False
         tarefaIO = self.verificar_IO_tarefas()
         self.tempo += 1
-        self.quantum -= 1
         if (tarefaIO):
             self.prox_preempcao = True
             self.resetar_quantum()
             return tarefaIO
+
+        if self.quantum_restante <= 0:
+            self.resetar_quantum()
+            self.preempcao = True
 
         if (self.processador):
             if (self.processador.duracao <= 0):                 # Verifica se a tarefa que estava no processador acabou para preemptar
@@ -159,12 +174,12 @@ class Escalonador:
                 if (tarefa.prioridade_dinamica > self.processador.prioridade_dinamica):
                     self.processador = tarefa
 
-        mutex = self.processador.verificar_mutex(self.tempo, self.lista_mutex)
+        mutex = self.processador.verificar_mutex(self.lista_mutex)
         if mutex:
             self.processador = self.processador.tratar_heranca_prioridade(mutex)
 
-        self.processador.decrementar_duracao_evento_mutex(self.tempo, self.lista_mutex)
-        self.processador.decrementar_duracao()
+        self.processador.decrementar_duracao(self.lista_mutex)
+        self.quantum_restante -= 1
 
         return self.processador
     
@@ -175,7 +190,7 @@ class Escalonador:
             self.preempcao = True
         tarefaIO = self.verificar_IO_tarefas()
         self.tempo += 1
-        self.quantum -= 1
+        self.quantum_restante -= 1
         if tarefaIO:
             self.prox_preempcao = True
             self.resetar_quantum()
