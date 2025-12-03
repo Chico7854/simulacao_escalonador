@@ -203,11 +203,8 @@ class UI:
     def atualizar_info_simulacao(self):
         string_tarefas = ""
         for tarefa in self.escalonador.tarefas:
-            string_tarefas += f"Tarefa {tarefa.id}; Ingresso: {tarefa.ingresso}; Duração Restante: {tarefa.duracao}; Prioridade: {tarefa.prioridade}"
-            if (self.escalonador.tipo == "Prioridade Preemptivo Envelhecimento"):
-                string_tarefas += f"; Prioridade Dinâmica: {tarefa.prioridade_dinamica}\n"
-            else:
-                string_tarefas += "\n"
+            string_tarefas += f"Tarefa {tarefa.id}; Ingresso: {tarefa.ingresso}; Duração Restante: {tarefa.duracao}; Prioridade: {tarefa.prioridade}" \
+                + f"; Prioridade Dinâmica: {tarefa.prioridade_dinamica}\n"
 
         self.var_info_simulacao.set(
             f"Relógio: {self.escalonador.tempo}\n" +

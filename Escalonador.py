@@ -5,6 +5,7 @@ from copy import deepcopy
 class Escalonador:
     def __init__(self):
         self.tcb = []
+        self.lista_mutex = []
 
         # Leitura do sistema_padrao.txt
         with open("sistema_padrao.txt") as f:
@@ -112,8 +113,10 @@ class Escalonador:
     
     # Simula Prio Preemp
     def prio_preemp(self):
+        self.resetar_tarefas()
         self.preempcao = self.append_nova_tarefa()  # Verifica se há nova tarefa para preemptar
         self.tempo += 1
+
 
         if (self.processador):
             if (self.processador.duracao <= 0):                 # Verifica se a tarefa que estava no processador acabou para preemptar
@@ -124,13 +127,18 @@ class Escalonador:
         if len(self.tarefas_prontas) == 0:                      # Verifica se há tarefas na lista de prontas
             return None
 
+
         # Caso há preempção
         if (self.preempcao):
             self.processador = self.tarefas_prontas[0]
             for tarefa in self.tarefas_prontas:                 # Verifica qual tarefa tem maior prioridade na lista de prontas
-                if (tarefa.prioridade > self.processador.prioridade):
+                if (tarefa.prioridade_dinamica > self.processador.prioridade_dinamica):
                     self.processador = tarefa
 
+
+        self.processador = self.processador.verificar_mutex(self.tempo, self.lista_mutex)       # Função retorna a tarefa que deve ser processada, trata herança de prioridades
+
+        self.processador.decrementar_duracao_evento_mutex(self.tempo, self.lista_mutex)
         self.processador.duracao -= 1
 
         return self.processador
@@ -194,3 +202,7 @@ class Escalonador:
     # Ordena as tarefas por id
     def ordenar_tarefas(self):
         self.tcb.sort(key=lambda t: t.id)
+
+    def resetar_tarefas(self):
+        for tarefa in self.tarefas_prontas:
+            tarefa.reset()  
