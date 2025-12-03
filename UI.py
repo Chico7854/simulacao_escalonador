@@ -82,6 +82,22 @@ class UI:
         id_excluir_combobox.pack()
         tkinter.Button(frame_excluir_tarefa, text="Excluir Tarefa", bg="red", command=lambda: self.excluir_tarefa(id_excluir_combobox.get())).pack(pady=20)
 
+        # Informações nova tarefa
+        # frame_criar_evento = tkinter.Frame(root_tarefa)
+        # tkinter.Label(frame_criar_evento, text="Criar Novo Evento", fg="red", font=("bold")).pack()
+        # tkinter.Label(frame_criar_evento, text="Tipo").pack()
+        # tipos_evento = ["Mutex", "I/O"]
+        # tipo_combobox = ttk.Combobox(frame_criar_tarefa, values=tipos_evento)
+        # tipo_combobox.pack()
+        # tkinter.Label(frame_criar_tarefa, text="Ingresso em Relação à Tarefa").pack()
+        # ingresso_entry = tkinter.Entry(frame_criar_tarefa)
+        # ingresso_entry.pack()
+        # tkinter.Label(frame_criar_tarefa, text="Duração").pack()
+        # duracao_entry = tkinter.Entry(frame_criar_tarefa)
+        # duracao_entry.pack()
+        # tkinter.Button(frame_criar_tarefa, bg="red", text="Criar Evento", command=lambda: self.criar_evento(id_entry_criar.get(), cor_combobox.get(), ingresso_entry.get(),
+        #                                                                                                     duracao_entry.get(), prioridade_entry.get())).pack(pady=20)
+
         # Organizar frames
         frame_escalonador.pack(side="left", expand=True, fill="both")
         frame_criar_tarefa.pack(side="left", expand=True, fill="both")
@@ -132,12 +148,14 @@ class UI:
         self.root_simulacao.title("Simulação Passo a Passo")
         self.relogio = 0
         self.var_info_simulacao = tkinter.StringVar()
+        self.back_button = tkinter.Button(self.root_simulacao, text="Back", bg="red", command=self.retroceder)
         self.next_button = tkinter.Button(self.root_simulacao, text="Next", bg="red", command=self.simulacao_passo_a_passo)
         self.info_simulacao = tkinter.Label(self.root_simulacao, textvariable=self.var_info_simulacao)
 
         # Organiza layout
         self.canvas.get_tk_widget().pack(fill=tkinter.BOTH, expand=True)
         self.info_simulacao.pack(pady=10)
+        self.back_button.pack(side="bottom")
         self.next_button.pack(side="bottom")
         
     # Cria janela especifica para simulacao completa
@@ -198,6 +216,12 @@ class UI:
         self.ax.set_xlim(0, tempo_atual)
         self.ax.set_xticks(range(0, tempo_atual + 1))
         self.canvas.draw()
+
+    def retroceder(self):
+        tempo = self.escalonador.tempo - 1
+        self.escalonador.setup()
+        for i in range(tempo):
+            self.simulacao_passo_a_passo()
 
     # Atualiza o quadro de informações da simulação passo a passo em tempo real
     def atualizar_info_simulacao(self):
