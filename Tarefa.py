@@ -7,6 +7,7 @@ class Tarefa:
         self.cor = "#" + cor
         self.ingresso = int(ingresso)
         self.duracao = int(duracao)
+        self.tempo_decorrido = 0
         self.prioridade = int(prioridade)
         self.prioridade_dinamica = int(prioridade)
         self.string_lista_eventos = ";".join(lista_eventos)             # String para mostrar eventos na tela inicial
@@ -16,7 +17,7 @@ class Tarefa:
         for evento in lista_eventos:                                    # Cria lista de eventos
             tipo = evento[0:2]
             if tipo == "ML":                                            # Se evento for solicitação de mutex cria o evento
-                inicio = int(ingresso) + int(evento[-2:])
+                inicio = int(evento[-2:])
                 ev = Evento(inicio, "mutex")
                 ev.setIdMutex(evento[2:4])
                 self.lista_eventos_mutex.append(ev)
@@ -27,7 +28,7 @@ class Tarefa:
                             final = int(ingresso) + int(evento[-2:])
                             ev.setDuracaoMutex(final)
             else:                                                       # Se for IO
-                inicio = int(ingresso) + int(evento[3:5])
+                inicio = int(evento[3:5])
                 ev = Evento(inicio, "IO")
                 ev.setDuracaoIO(evento[-2:])
                 self.lista_eventos_IO.append(ev)
@@ -88,11 +89,16 @@ class Tarefa:
             self.prioridade_dinamica = self.prioridade
 
     # Verifica e trata eventos IO
-    def verificar_IO(self, tempo_atual):
+    def verificar_IO(self):
         for evento in self.lista_eventos_IO:
-            if evento.inicio <= tempo_atual:
+            print(f"Inicio: {evento.inicio}, tempo: {self.tempo_decorrido}")
+            if evento.inicio <= self.tempo_decorrido:
                 evento.duracao -= 1
-            if evento.duracao <= 0:
-                self.lista_eventos_IO.remove(evento)
-            return True
+                if evento.duracao <= 0:
+                    self.lista_eventos_IO.remove(evento)
+                return True
         return False
+    
+    def decrementar_duracao(self):
+        self.duracao -= 1
+        self.tempo_decorrido += 1

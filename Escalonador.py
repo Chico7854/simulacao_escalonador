@@ -87,7 +87,7 @@ class Escalonador:
 
         if len(self.tarefas_prontas) > 0:   
             processador = self.tarefas_prontas[0]
-            processador.duracao -= 1    # Diminui a duracao da tarefa
+            processador.decrementar_duracao()    # Diminui a duracao da tarefa
             return processador      # Retorna a tarefa que ocupou o processador
         else:
             return None     # Caso acabou a tarefa e nao há nenhuma tarefa na lista de prontas
@@ -123,7 +123,7 @@ class Escalonador:
                 if (tarefa.duracao < self.processador.duracao):
                     self.processador = tarefa
                     
-        self.processador.duracao -= 1   
+        self.processador.decrementar_duracao()   
 
         return self.processador
     
@@ -159,7 +159,7 @@ class Escalonador:
         self.processador = self.processador.verificar_mutex(self.tempo, self.lista_mutex)       # Função retorna a tarefa que deve ser processada, trata herança de prioridades
 
         self.processador.decrementar_duracao_evento_mutex(self.tempo, self.lista_mutex)
-        self.processador.duracao -= 1
+        self.processador.decrementar_duracao()
 
         return self.processador
     
@@ -200,7 +200,7 @@ class Escalonador:
                 else:
                     tarefa.prioridade_dinamica += self.alpha
 
-        self.processador.duracao -= 1
+        self.processador.decrementar_duracao()
         self.quantum_restante -= 1
 
         return self.processador
@@ -237,5 +237,5 @@ class Escalonador:
     # Verifica se tem alguma tarefa com operação IO para interromper
     def verificar_IO_tarefas(self):
         for tarefa in self.tarefas_prontas:
-            if tarefa.verificar_IO(self.tempo): return tarefa
+            if tarefa.verificar_IO(): return tarefa
         return None
