@@ -106,7 +106,7 @@ class UI:
     # Atualiza as informações no menu principal
     def atualizar_info(self):
         tarefas = self.escalonador.tcb
-        info = "Escalonador: " + self.escalonador.tipo + "; Quantum: " + str(self.escalonador.quantum) + ";\n"
+        info = f"Escalonador: {self.escalonador.tipo}; Quantum: {self.escalonador.quantum}; Alpha: {self.escalonador.alpha}\n"
         for tarefa in tarefas:
             info += "Tarefa " + str(tarefa.id) + "; Cor: " + tarefa.cor + "; Ingresso: " + str(tarefa.ingresso) + "; Duração: " + str(tarefa.duracao) + \
                 "; Prioridade: " + str(tarefa.prioridade) + "; Eventos: " + tarefa.string_lista_eventos + ";\n"

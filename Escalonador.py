@@ -198,8 +198,6 @@ class Escalonador:
         return self.processador
     
     def prio_preemp_envelhecimento(self):
-        if self.processador:
-            self.processador.prioridade_dinamica = self.processador.prioridade
         self.fazendo_IO = False                     # Variável para Informação no front end
         self.preempcao = self.append_nova_tarefa()  # Verifica se há nova tarefa para preemptar
         self.houve_heranca_prioridade = False
@@ -239,6 +237,7 @@ class Escalonador:
             self.tarefa_trocada = self.processador
             self.processador = mutex.tarefa
             self.houve_heranca_prioridade = True
+            self.prox_preempcao = True
 
         for tarefa in self.tarefas_prontas:
             if tarefa != self.processador:
@@ -249,6 +248,8 @@ class Escalonador:
 
         if self.houve_heranca_prioridade:
             self.tarefa_trocada.resetar_prioridade()
+        else:
+            self.processador.resetar_prioridade()
 
         return self.processador
     
