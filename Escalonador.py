@@ -5,7 +5,6 @@ from copy import deepcopy
 class Escalonador:
     def __init__(self):
         self.tcb = []
-        self.lista_mutex = []
 
         # Leitura do sistema_padrao.txt
         with open("sistema_padrao.txt") as f:
@@ -42,9 +41,11 @@ class Escalonador:
         self.resetar_quantum()
         self.processador = None
         self.tarefas_prontas = []
+        self.lista_mutex = []
+        self.prox_preempcao = False
         self.tarefas.sort(key=lambda tarefa: tarefa.id)
 
-    # Ativa esaclonador escolhido
+    # Ativa escalonador escolhido
     def prox_tarefa(self):
         tipo_escalonador = self.tipo
         if tipo_escalonador == "FIFO":
@@ -115,8 +116,14 @@ class Escalonador:
     def prio_preemp(self):
         self.resetar_tarefas()
         self.preempcao = self.append_nova_tarefa()  # Verifica se há nova tarefa para preemptar
+        if self.prox_preempcao:
+            self.preempcao = True
+            self.prox_preempcao = False
+        tarefaIO = self.verificar_IO_tarefas()
         self.tempo += 1
-
+        if (tarefaIO):
+            self.prox_preempcao = True
+            return tarefaIO
 
         if (self.processador):
             if (self.processador.duracao <= 0):                 # Verifica se a tarefa que estava no processador acabou para preemptar
@@ -127,14 +134,12 @@ class Escalonador:
         if len(self.tarefas_prontas) == 0:                      # Verifica se há tarefas na lista de prontas
             return None
 
-
         # Caso há preempção
         if (self.preempcao):
             self.processador = self.tarefas_prontas[0]
             for tarefa in self.tarefas_prontas:                 # Verifica qual tarefa tem maior prioridade na lista de prontas
                 if (tarefa.prioridade_dinamica > self.processador.prioridade_dinamica):
                     self.processador = tarefa
-
 
         self.processador = self.processador.verificar_mutex(self.tempo, self.lista_mutex)       # Função retorna a tarefa que deve ser processada, trata herança de prioridades
 
@@ -205,4 +210,9 @@ class Escalonador:
 
     def resetar_tarefas(self):
         for tarefa in self.tarefas_prontas:
-            tarefa.reset()  
+            tarefa.reset()
+
+    def verificar_IO_tarefas(self):
+        for tarefa in self.tarefas_prontas:
+            if tarefa.verificar_IO(self.tempo): return tarefa
+        return None

@@ -24,8 +24,8 @@ class Tarefa:
                 for ev in self.lista_eventos_mutex:
                     if ev.tipo == "mutex":
                         if ev.id_mutex == int(evento[2:4]):
-                            duracao_mutex = int(ingresso) + int(evento[-2:])
-                            ev.setDuracaoMutex(duracao_mutex)
+                            final = int(ingresso) + int(evento[-2:])
+                            ev.setDuracaoMutex(final)
             else:                                                       # Se for IO
                 inicio = int(ingresso) + int(evento[3:5])
                 ev = Evento(inicio, "IO")
@@ -86,3 +86,13 @@ class Tarefa:
         if (self.herancaPrioridade):
             self.herancaPrioridade = False
             self.prioridade_dinamica = self.prioridade
+
+    # Verifica e trata eventos IO
+    def verificar_IO(self, tempo_atual):
+        for evento in self.lista_eventos_IO:
+            if evento.inicio <= tempo_atual:
+                evento.duracao -= 1
+            if evento.duracao <= 0:
+                self.lista_eventos_IO.remove(evento)
+            return True
+        return False

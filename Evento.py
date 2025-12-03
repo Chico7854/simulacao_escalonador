@@ -10,4 +10,4 @@ class Evento:
         self.duracao = int(fim) - self.inicio
 
     def setDuracaoIO(self, duracao):
-        self.duracaoIO = int(duracao)
+        self.duracao = int(duracao)
