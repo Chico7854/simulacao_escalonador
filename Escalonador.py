@@ -60,7 +60,15 @@ class Escalonador:
     # Simula FIFO
     def FIFO(self):
         self.preempcao = self.append_nova_tarefa()  # Verifica se entrou nova tarefa para preemptar
+        if self.prox_preempcao:                     # Flag da iteração passada para ter preempção
+            self.prox_preempcao = False
+            self.preempcao = True
+        tarefaIO = self.verificar_IO_tarefas()
         self.tempo += 1
+        if tarefaIO:
+            self.prox_preempcao = True
+            return tarefaIO
+        
         if len(self.tarefas_prontas) == 0:      # Se não houver tarefas prontas pula
             return None
         if (self.quantum_restante <= 0):    # Verifica de o quantum acabou para preemptar
@@ -87,7 +95,14 @@ class Escalonador:
     # Simula SRTF
     def SRTF(self):
         self.preempcao = self.append_nova_tarefa()      # Verifica se entrou nova tarefa para preemptar
+        if self.prox_preempcao:
+            self.prox_preempcao = False
+            self.preempcao = True
+        tarefaIO = self.verificar_IO_tarefas()
         self.tempo += 1
+        if tarefaIO:
+            self.prox_preempcao = True
+            return tarefaIO
 
         if (self.processador):
             if (self.processador.duracao <= 0):     # Verifica se acabou a tarefa para preemptar
@@ -150,7 +165,14 @@ class Escalonador:
     
     def prio_preemp_envelhecimento(self):
         self.preempcao = self.append_nova_tarefa()  # Verifica se há nova tarefa para preemptar
+        if self.prox_preempcao:
+            self.prox_preempcao = False
+            self.preempcao = True
+        tarefaIO = self.verificar_IO_tarefas()
         self.tempo += 1
+        if tarefaIO:
+            self.prox_preempcao = True
+            return tarefaIO
 
         if self.quantum_restante <= 0:
             self.preempcao = True
@@ -212,6 +234,7 @@ class Escalonador:
         for tarefa in self.tarefas_prontas:
             tarefa.reset()
 
+    # Verifica se tem alguma tarefa com operação IO para interromper
     def verificar_IO_tarefas(self):
         for tarefa in self.tarefas_prontas:
             if tarefa.verificar_IO(self.tempo): return tarefa
