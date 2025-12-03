@@ -33,9 +33,11 @@ class Tarefa:
                 ev.setDuracaoIO(evento[-2:])
                 self.lista_eventos_IO.append(ev)
 
+    # Operação de Lock do Mutex, retorna None se funcionou, e o mutex se ele bloqueou
     def lock(self, evento, lista_mutex):
         mutex = None
         id_mutex = evento.id_mutex
+        success = True
         for mu in lista_mutex:
             if id_mutex == mu.id:
                 mutex = mu
@@ -49,17 +51,50 @@ class Tarefa:
             mutex.tarefa = self
         else:
             if (mutex.tarefa != self):
-                if (mutex.tarefa.prioridade_dinamica < self.prioridade_dinamica):       # Herança de Prioridades
-                    temp = mutex.tarefa.prioridade_dinamica
-                    mutex.tarefa.prioridade_dinamica = self.prioridade_dinamica
-                    self.prioridade_dinamica = temp
-                    self.herancaPrioridade = True
-                    mutex.tarefa.herancaPrioridade = True
+                success = False
             
-        if self.herancaPrioridade:
-            return mutex.tarefa
+        if success:
+            return None
         else:
-            return self
+            return mutex
+
+
+    def tratar_heranca_prioridade(self, mutex):
+        temp = mutex.tarefa.prioridade_dinamica
+        mutex.tarefa.prioridade_dinamica = self.prioridade_dinamica
+        self.prioridade_dinamica = temp
+        self.herancaPrioridade = True
+        mutex.tarefa.herancaPrioridade = True
+        return mutex.tarefa
+
+
+    # def lock(self, evento, lista_mutex):
+    #     mutex = None
+    #     id_mutex = evento.id_mutex
+    #     for mu in lista_mutex:
+    #         if id_mutex == mu.id:
+    #             mutex = mu
+
+    #     if (not mutex):                                                             # Cria um novo mutex caso não exista
+    #         mutex = Mutex(id_mutex)
+    #         lista_mutex.append(mutex)
+    
+    #     if (not mutex.isLocked):
+    #         mutex.isLocked = True
+    #         mutex.tarefa = self
+    #     else:
+    #         if (mutex.tarefa != self):
+    #             if (mutex.tarefa.prioridade_dinamica < self.prioridade_dinamica):       # Herança de Prioridades
+    #                 temp = mutex.tarefa.prioridade_dinamica
+    #                 mutex.tarefa.prioridade_dinamica = self.prioridade_dinamica
+    #                 self.prioridade_dinamica = temp
+    #                 self.herancaPrioridade = True
+    #                 mutex.tarefa.herancaPrioridade = True
+            
+    #     if self.herancaPrioridade:
+    #         return mutex.tarefa
+    #     else:
+    #         return self
     
     def unlock(self, mutex):
         mutex.tarefa = None
@@ -68,10 +103,9 @@ class Tarefa:
     # Verifica se tem algum mutex para tratar, retorna true se tarefa conseguiu processar no mutex ou se não houver mutex, false se foi bloqueada
     def verificar_mutex(self, tempo_atual, lista_mutex):
         for evento in self.lista_eventos_mutex:
-            print(f"Id: {self.id}, Inicio: {evento.inicio}, TAtual: {tempo_atual}, Duração: {evento.duracao}")
-            if evento.inicio < tempo_atual:
+            if evento.inicio <= self.tempo_decorrido:
                 return self.lock(evento, lista_mutex)
-        return self
+        return None
     
     def decrementar_duracao_evento_mutex(self, tempo_atual, lista_mutex):
         for evento in self.lista_eventos_mutex:
@@ -91,7 +125,6 @@ class Tarefa:
     # Verifica e trata eventos IO
     def verificar_IO(self):
         for evento in self.lista_eventos_IO:
-            print(f"Inicio: {evento.inicio}, tempo: {self.tempo_decorrido}")
             if evento.inicio <= self.tempo_decorrido:
                 evento.duracao -= 1
                 if evento.duracao <= 0:

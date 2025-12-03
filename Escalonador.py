@@ -136,8 +136,10 @@ class Escalonador:
             self.prox_preempcao = False
         tarefaIO = self.verificar_IO_tarefas()
         self.tempo += 1
+        self.quantum -= 1
         if (tarefaIO):
             self.prox_preempcao = True
+            self.resetar_quantum()
             return tarefaIO
 
         if (self.processador):
@@ -151,12 +153,15 @@ class Escalonador:
 
         # Caso há preempção
         if (self.preempcao):
+            self.resetar_quantum()
             self.processador = self.tarefas_prontas[0]
             for tarefa in self.tarefas_prontas:                 # Verifica qual tarefa tem maior prioridade na lista de prontas
                 if (tarefa.prioridade_dinamica > self.processador.prioridade_dinamica):
                     self.processador = tarefa
 
-        self.processador = self.processador.verificar_mutex(self.tempo, self.lista_mutex)       # Função retorna a tarefa que deve ser processada, trata herança de prioridades
+        mutex = self.processador.verificar_mutex(self.tempo, self.lista_mutex)
+        if mutex:
+            self.processador = self.processador.tratar_heranca_prioridade(mutex)
 
         self.processador.decrementar_duracao_evento_mutex(self.tempo, self.lista_mutex)
         self.processador.decrementar_duracao()
@@ -170,8 +175,10 @@ class Escalonador:
             self.preempcao = True
         tarefaIO = self.verificar_IO_tarefas()
         self.tempo += 1
+        self.quantum -= 1
         if tarefaIO:
             self.prox_preempcao = True
+            self.resetar_quantum()
             return tarefaIO
 
         if self.quantum_restante <= 0:
@@ -188,6 +195,7 @@ class Escalonador:
 
         # Caso há preempção
         if (self.preempcao):
+            self.resetar_quantum()
             self.quantum_restante = self.quantum
             temp = self.tarefas_prontas[0]
             for tarefa in self.tarefas_prontas:                 # Verifica qual tarefa tem maior prioridade na lista de prontas
