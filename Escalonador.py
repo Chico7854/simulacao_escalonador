@@ -119,7 +119,6 @@ class Escalonador:
 
         if (self.quantum_restante <= 0):       # Verifica se acabou o quantum para preemptar
             self.preempcao = True
-            self.resetar_quantum()
 
         # Caso tenha preempção
         if (self.preempcao): 
@@ -141,8 +140,8 @@ class Escalonador:
     
     # Simula Prio Preemp
     def prio_preemp(self):
-        self.resetar_tarefas()
         self.preempcao = self.append_nova_tarefa()  # Verifica se há nova tarefa para preemptar
+        houve_heranca_prioridades = False
         if self.prox_preempcao:
             self.preempcao = True
             self.prox_preempcao = False
@@ -176,24 +175,30 @@ class Escalonador:
 
         mutex = self.processador.verificar_mutex(self.lista_mutex)
         if mutex:
+            tarefa_trocada = self.processador
             self.processador = self.processador.tratar_heranca_prioridade(mutex)
+            houve_heranca_prioridades = True
+
 
         self.processador.decrementar_duracao(self.lista_mutex)
         self.quantum_restante -= 1
+
+        # Inverte novamente prioridades caso houve herança
+        if houve_heranca_prioridades:
+            self.processador.inverter_prioridades(tarefa_trocada)
 
         return self.processador
     
     def prio_preemp_envelhecimento(self):
         self.preempcao = self.append_nova_tarefa()  # Verifica se há nova tarefa para preemptar
+        houve_heranca_prioridade = False
         if self.prox_preempcao:
             self.prox_preempcao = False
             self.preempcao = True
         tarefaIO = self.verificar_IO_tarefas()
         self.tempo += 1
-        self.quantum_restante -= 1
         if tarefaIO:
             self.prox_preempcao = True
-            self.resetar_quantum()
             return tarefaIO
 
         if self.quantum_restante <= 0:
@@ -211,20 +216,29 @@ class Escalonador:
         # Caso há preempção
         if (self.preempcao):
             self.resetar_quantum()
-            self.quantum_restante = self.quantum
-            temp = self.tarefas_prontas[0]
+            self.processador = self.tarefas_prontas[0]
             for tarefa in self.tarefas_prontas:                 # Verifica qual tarefa tem maior prioridade na lista de prontas
-                if (tarefa.prioridade_dinamica > temp.prioridade_dinamica):
-                    temp = tarefa
-            for tarefa in self.tarefas_prontas:
-                if tarefa == temp:
-                    tarefa.prioridade_dinamica = tarefa.prioridade
+                if (tarefa.prioridade_dinamica > self.processador.prioridade_dinamica):
                     self.processador = tarefa
-                else:
-                    tarefa.prioridade_dinamica += self.alpha
+            
+        mutex = self.processador.verificar_mutex(self.lista_mutex)
+        if mutex:
+            tarefa_trocada = self.processador
+            self.processador = self.processador.tratar_heranca_prioridade(mutex)
+            houve_heranca_prioridade = True
 
-        self.processador.decrementar_duracao()
+        for tarefa in self.tarefas_prontas:
+            if tarefa != self.processador:
+                tarefa.prioridade_dinamica += self.alpha
+
+        self.processador.decrementar_duracao(self.lista_mutex)
         self.quantum_restante -= 1
+
+        if houve_heranca_prioridade:
+            tarefa_trocada.prioridade_dinamica -= self.alpha
+            self.processador.inverter_prioridades(tarefa_trocada)
+        else:
+            self.processador.prioridade_dinamica = self.processador.prioridade
 
         return self.processador
     

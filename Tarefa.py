@@ -13,7 +13,6 @@ class Tarefa:
         self.string_lista_eventos = ";".join(lista_eventos)             # String para mostrar eventos na tela inicial
         self.lista_eventos_mutex = []
         self.lista_eventos_IO = []
-        self.herancaPrioridade = False
         for evento in lista_eventos:                                    # Cria lista de eventos
             tipo = evento[0:2]
             if tipo == "ML":                                            # Se evento for solicitação de mutex cria o evento
@@ -35,6 +34,7 @@ class Tarefa:
 
     # Operação de Lock do Mutex, retorna None se funcionou, e o mutex se ele bloqueou
     def lock(self, evento, lista_mutex):
+        print("locking")
         mutex = None
         id_mutex = evento.id_mutex
         success = True
@@ -43,6 +43,7 @@ class Tarefa:
                 mutex = mu
 
         if (not mutex):                                                             # Cria um novo mutex caso não exista
+            print("Criando Mutex")
             mutex = Mutex(id_mutex)
             lista_mutex.append(mutex)
     
@@ -60,11 +61,7 @@ class Tarefa:
 
 
     def tratar_heranca_prioridade(self, mutex):
-        temp = mutex.tarefa.prioridade_dinamica
-        mutex.tarefa.prioridade_dinamica = self.prioridade_dinamica
-        self.prioridade_dinamica = temp
-        self.herancaPrioridade = True
-        mutex.tarefa.herancaPrioridade = True
+        self.inverter_prioridades(mutex.tarefa)
         return mutex.tarefa
     
     
@@ -89,11 +86,6 @@ class Tarefa:
                     if evento.id_mutex == mutex.id:
                         self.unlock(mutex)
 
-    def reset(self):
-        if (self.herancaPrioridade):
-            self.herancaPrioridade = False
-            self.prioridade_dinamica = self.prioridade
-
     # Verifica e trata eventos IO
     def verificar_IO(self):
         for evento in self.lista_eventos_IO:
@@ -108,3 +100,8 @@ class Tarefa:
         self.duracao -= 1
         self.tempo_decorrido += 1
         self.decrementar_duracao_evento_mutex(lista_mutex)
+
+    def inverter_prioridades(self, tarefa):
+        temp = tarefa.prioridade_dinamica
+        tarefa.prioridade_dinamica = self.prioridade_dinamica
+        self.prioridade_dinamica = temp
