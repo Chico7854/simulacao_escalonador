@@ -149,6 +149,7 @@ class UI:
         self.escalonador.excluir_tarefa(id)
         self.atualizar_info()
 
+    # Cria novo evento
     def criar_evento(self, id_tarefa, tipo, ingresso, duracao):
         self.escalonador.criar_evento(id_tarefa, tipo, ingresso,  duracao)
         self.atualizar_info()
@@ -266,6 +267,7 @@ class UI:
         self.ax.set_xticks(range(0, tempo_atual + 1))
         self.canvas.draw()
 
+    # Volta o tempo da simulação em 1 tick
     def retroceder(self):
         tempo = self.escalonador.tempo - 1
         self.escalonador.setup()
@@ -277,7 +279,7 @@ class UI:
         string_tarefas = ""
         prioridade_dinamica = ""
         for tarefa in self.escalonador.tarefas:
-            if self.escalonador.houve_heranca_prioridade:
+            if self.escalonador.houve_heranca_prioridade:               # Caso haja uma herança de prioridade, ele apenas inverte as prioridades na hora de mostrar
                 if tarefa == self.escalonador.processador:
                     prioridade_dinamica = self.escalonador.tarefa_trocada.prioridade_dinamica
                 elif tarefa == self.escalonador.tarefa_trocada:
