@@ -45,6 +45,11 @@ class Tarefa:
             if mutex.id_mutex == int(id_mutex):
                 self.lista_eventos_mutex.remove(mutex)
 
+    def excluir_io(self, ingresso):
+        for io in self.lista_eventos_IO:
+            if io.inicio == int(ingresso):
+                self.lista_eventos_IO.remove(io)
+
     # Operação de Lock do Mutex, retorna None se funcionou, e o mutex se ele bloqueou
     def lock(self, evento, lista_mutex):
         mutex = None

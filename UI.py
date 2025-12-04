@@ -112,6 +112,18 @@ class UI:
         id_excluir_mutex_entry.pack()
         tkinter.Button(frame_excluir_mutex, text="Excluir Mutex", bg="red", command=lambda: self.excluir_mutex(id_excluir_mutex_tarefa_entry.get(),
                                                                                                                id_excluir_mutex_entry.get())).pack(pady=20)
+        
+        # Excluir I/O
+        frame_excluir_io = tkinter.Frame(root_tarefa)
+        tkinter.Label(frame_excluir_io, text="Excluir I/O", fg="red", font=("bold")).pack()
+        tkinter.Label(frame_excluir_io, text="Id Tarefa").pack()
+        id_excluir_io_tarefa_entry = tkinter.Entry(frame_excluir_io)
+        id_excluir_io_tarefa_entry.pack()
+        tkinter.Label(frame_excluir_io, text="Ingresso").pack()
+        ingresso_excluir_io_entry = tkinter.Entry(frame_excluir_io)
+        ingresso_excluir_io_entry.pack()
+        tkinter.Button(frame_excluir_io, text="Excluir I/O", bg="red", command=lambda: self.excluir_io(id_excluir_io_tarefa_entry.get(),
+                                                                                                               ingresso_excluir_io_entry.get())).pack(pady=20)
 
         # Organizar frames
         frame_escalonador.pack(side="left", expand=True, fill="both")
@@ -119,6 +131,7 @@ class UI:
         frame_excluir_tarefa.pack(side="left", expand=True, fill="both")
         frame_criar_evento.pack(side="left", expand=True, fill="both")
         frame_excluir_mutex.pack(side="left", expand=True, fill="both")
+        frame_excluir_io.pack(side="left", expand=True, fill="both")
 
     # Atualiza as informações do escalonador
     def atualizar_escalonador(self, tipo, quantum):
@@ -142,6 +155,10 @@ class UI:
 
     def excluir_mutex(self, id_tarefa, id_mutex):
         self.escalonador.excluir_mutex(id_tarefa, id_mutex)
+        self.atualizar_info()
+
+    def excluir_io(self, id_tarefa, ingresso):
+        self.escalonador.excluir_io(id_tarefa, ingresso)
         self.atualizar_info()
 
     # Atualiza as informações no menu principal
