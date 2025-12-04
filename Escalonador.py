@@ -34,6 +34,11 @@ class Escalonador:
         self.tcb = [t for t in self.tcb if t.id != int(id)]
         self.qtd_tarefas -= 1
 
+    def criar_evento(self, id_tarefa, tipo, ingresso, duracao):
+        for tarefa in self.tcb:
+            if tarefa.id == int(id_tarefa):
+                tarefa.criar_evento(tipo, ingresso, duracao)
+
     # Zera variaveis do escalonador
     def setup(self):
         self.tarefas = deepcopy(self.tcb)

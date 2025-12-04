@@ -82,26 +82,30 @@ class UI:
         id_excluir_combobox.pack()
         tkinter.Button(frame_excluir_tarefa, text="Excluir Tarefa", bg="red", command=lambda: self.excluir_tarefa(id_excluir_combobox.get())).pack(pady=20)
 
-        # Informações nova tarefa
-        # frame_criar_evento = tkinter.Frame(root_tarefa)
-        # tkinter.Label(frame_criar_evento, text="Criar Novo Evento", fg="red", font=("bold")).pack()
-        # tkinter.Label(frame_criar_evento, text="Tipo").pack()
-        # tipos_evento = ["Mutex", "I/O"]
-        # tipo_combobox = ttk.Combobox(frame_criar_tarefa, values=tipos_evento)
-        # tipo_combobox.pack()
-        # tkinter.Label(frame_criar_tarefa, text="Ingresso em Relação à Tarefa").pack()
-        # ingresso_entry = tkinter.Entry(frame_criar_tarefa)
-        # ingresso_entry.pack()
-        # tkinter.Label(frame_criar_tarefa, text="Duração").pack()
-        # duracao_entry = tkinter.Entry(frame_criar_tarefa)
-        # duracao_entry.pack()
-        # tkinter.Button(frame_criar_tarefa, bg="red", text="Criar Evento", command=lambda: self.criar_evento(id_entry_criar.get(), cor_combobox.get(), ingresso_entry.get(),
-        #                                                                                                     duracao_entry.get(), prioridade_entry.get())).pack(pady=20)
+        # Informações novo evento
+        frame_criar_evento = tkinter.Frame(root_tarefa)
+        tkinter.Label(frame_criar_evento, text="Criar Novo Evento", fg="red", font=("bold")).pack()
+        tkinter.Label(frame_criar_evento, text="Id Tarefa").pack()
+        id_tarefa_entry = tkinter.Entry(frame_criar_evento)
+        id_tarefa_entry.pack()
+        tkinter.Label(frame_criar_evento, text="Tipo").pack()
+        tipos_evento = ["Mutex", "I/O"]
+        tipo_combobox = ttk.Combobox(frame_criar_evento, values=tipos_evento)
+        tipo_combobox.pack()
+        tkinter.Label(frame_criar_evento, text="Ingresso em Relação à Tarefa").pack()
+        ingresso_entry = tkinter.Entry(frame_criar_evento)
+        ingresso_entry.pack()
+        tkinter.Label(frame_criar_evento, text="Duração").pack()
+        duracao_entry = tkinter.Entry(frame_criar_evento)
+        duracao_entry.pack()
+        tkinter.Button(frame_criar_evento, bg="red", text="Criar Evento", command=lambda: self.criar_evento(id_tarefa_entry.get(), tipo_combobox.get(), 
+                                                                                                            ingresso_entry.get(), duracao_entry.get())).pack(pady=20)
 
         # Organizar frames
         frame_escalonador.pack(side="left", expand=True, fill="both")
         frame_criar_tarefa.pack(side="left", expand=True, fill="both")
         frame_excluir_tarefa.pack(side="left", expand=True, fill="both")
+        frame_criar_evento.pack(side="left", expand=True, fill="both")
 
     # Atualiza as informações do escalonador
     def atualizar_escalonador(self, tipo, quantum):
@@ -119,13 +123,24 @@ class UI:
         self.escalonador.excluir_tarefa(id)
         self.atualizar_info()
 
+    def criar_evento(self, id_tarefa, tipo, ingresso, duracao):
+        self.escalonador.criar_evento(id_tarefa, tipo, ingresso,  duracao)
+        self.atualizar_info()
+
     # Atualiza as informações no menu principal
     def atualizar_info(self):
         tarefas = self.escalonador.tcb
         info = f"Escalonador: {self.escalonador.tipo}; Quantum: {self.escalonador.quantum}; Alpha: {self.escalonador.alpha}\n"
         for tarefa in tarefas:
             info += "Tarefa " + str(tarefa.id) + "; Cor: " + tarefa.cor + "; Ingresso: " + str(tarefa.ingresso) + "; Duração: " + str(tarefa.duracao) + \
-                "; Prioridade: " + str(tarefa.prioridade) + "; Eventos: " + tarefa.string_lista_eventos + ";\n"
+                "; Prioridade: " + str(tarefa.prioridade) + "; Mutexes: {"
+            for mutex in tarefa.lista_eventos_mutex:
+                info += f"[Id: {mutex.id_mutex}; Ingresso: {mutex.inicio}; Duração: {mutex.duracao}]"
+            info += "}; I/O: {"
+            for io in tarefa.lista_eventos_IO:
+                info += f"[Ingresso: {io.inicio}; Duração: {io.duracao}]"
+            info += "}\n"
+            
         self.var_info.set(info)
 
     # Cria a janela da simulação, essa função vai ser usada tanto para criar a simulação passo a passo e a completa

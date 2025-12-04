@@ -32,6 +32,14 @@ class Tarefa:
                 ev.setDuracaoIO(evento[-2:])
                 self.lista_eventos_IO.append(ev)
 
+    def criar_evento(self, tipo, ingresso, duracao):
+        ev = Evento(ingresso, tipo)
+        ev.setDuracaoIO(duracao)
+        if tipo == "mutex":
+            self.lista_eventos_mutex.append(ev)
+        else:
+            self.lista_eventos_IO.append(ev)
+
     # Operação de Lock do Mutex, retorna None se funcionou, e o mutex se ele bloqueou
     def lock(self, evento, lista_mutex):
         mutex = None
