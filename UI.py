@@ -100,12 +100,25 @@ class UI:
         duracao_entry.pack()
         tkinter.Button(frame_criar_evento, bg="red", text="Criar Evento", command=lambda: self.criar_evento(id_tarefa_entry.get(), tipo_combobox.get(), 
                                                                                                             ingresso_entry.get(), duracao_entry.get())).pack(pady=20)
+        
+        # Excluir Mutex
+        frame_excluir_mutex = tkinter.Frame(root_tarefa)
+        tkinter.Label(frame_excluir_mutex, text="Excluir Mutex", fg="red", font=("bold")).pack()
+        tkinter.Label(frame_excluir_mutex, text="Id Tarefa").pack()
+        id_excluir_mutex_tarefa_entry = tkinter.Entry(frame_excluir_mutex)
+        id_excluir_mutex_tarefa_entry.pack()
+        tkinter.Label(frame_excluir_mutex, text="Id").pack()
+        id_excluir_mutex_entry = tkinter.Entry(frame_excluir_mutex)
+        id_excluir_mutex_entry.pack()
+        tkinter.Button(frame_excluir_mutex, text="Excluir Mutex", bg="red", command=lambda: self.excluir_mutex(id_excluir_mutex_tarefa_entry.get(),
+                                                                                                               id_excluir_mutex_entry.get())).pack(pady=20)
 
         # Organizar frames
         frame_escalonador.pack(side="left", expand=True, fill="both")
         frame_criar_tarefa.pack(side="left", expand=True, fill="both")
         frame_excluir_tarefa.pack(side="left", expand=True, fill="both")
         frame_criar_evento.pack(side="left", expand=True, fill="both")
+        frame_excluir_mutex.pack(side="left", expand=True, fill="both")
 
     # Atualiza as informações do escalonador
     def atualizar_escalonador(self, tipo, quantum):
@@ -125,6 +138,10 @@ class UI:
 
     def criar_evento(self, id_tarefa, tipo, ingresso, duracao):
         self.escalonador.criar_evento(id_tarefa, tipo, ingresso,  duracao)
+        self.atualizar_info()
+
+    def excluir_mutex(self, id_tarefa, id_mutex):
+        self.escalonador.excluir_mutex(id_tarefa, id_mutex)
         self.atualizar_info()
 
     # Atualiza as informações no menu principal

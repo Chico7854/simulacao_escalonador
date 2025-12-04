@@ -39,6 +39,11 @@ class Escalonador:
             if tarefa.id == int(id_tarefa):
                 tarefa.criar_evento(tipo, ingresso, duracao)
 
+    def excluir_mutex(self, id_tarefa, id_mutex):
+        for tarefa in self.tcb:
+            if tarefa.id == int(id_tarefa):
+                tarefa.excluir_mutex(id_mutex)
+
     # Zera variaveis do escalonador
     def setup(self):
         self.tarefas = deepcopy(self.tcb)
